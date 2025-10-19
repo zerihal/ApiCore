@@ -24,6 +24,7 @@ namespace ApiCore.CodeAnalysis.Controllers
             });
         }
 
+        // Sample endpoint - to be replaced
         [HttpPost("analyze")]
         public IActionResult Analyze([FromBody] string code)
         {
