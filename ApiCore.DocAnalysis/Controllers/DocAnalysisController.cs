@@ -59,8 +59,9 @@ namespace ApiCore.DocAnalysis.Controllers
                     
                     if (parser.LoadFile(fs))
                     {
+                        var fileKey = GetUniqueFileName(file.FileName, results.Keys);
                         var links = parser.GetDocLinks();
-                        results.Add(file.Name, links);
+                        results.Add(fileKey, links);
                     }
                 }
           
@@ -68,6 +69,24 @@ namespace ApiCore.DocAnalysis.Controllers
 
             await Task.CompletedTask;
             return Ok(results);
+        }
+
+        private string GetUniqueFileName(string filename, IEnumerable<string> existingFileNames)
+        {
+            if (existingFileNames == null || !existingFileNames.Contains(filename))
+                return filename;
+
+            var counter = 1;
+            string newFileName;
+
+            do
+            {
+                newFileName = $"{filename} ({counter})";
+                counter++;
+            }
+            while (existingFileNames.Contains(newFileName));
+
+            return newFileName;
         }
     }
 }
