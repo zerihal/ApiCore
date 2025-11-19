@@ -1,5 +1,6 @@
 ﻿using ApiCore.Common.Interfaces;
 using DocParser.DocSearch;
+using DocParser.ExtensionMethods;
 using DocParser.Factories;
 using DocParser.Interfaces;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
@@ -76,32 +77,61 @@ namespace ApiCore.DocAnalysis.Controllers
         [HttpPost("searchdocs")]
         public async Task<IActionResult> SearchDocs([FromForm] List<IFormFile> files, string searchString)
         {
-            var results = new Dictionary<string, ISearchResult>();
-            var streams = new List<Stream>();
+            var results = new Dictionary<string, IList<ISearchResult>>();
+            IEnumerable<IFormFileStream>? fileStreams = null;
 
             try
             {
-                streams.AddRange(files.Select(f => f.OpenReadStream()));
-                var searcher = new DocSearcher(streams);
+                // Convert form files to form file streams for the DocSearcher
+                fileStreams = files.ToFormFileStreams();
+                var searcher = new DocSearcher(fileStreams);
 
-                // ToDo: Doc searcher needs an update - should need some way to identify the results against the form file stream.
-                // Currently will only return results where they are found in a file, which means for streams we will not have a
-                // file name to match against - this will need some thought - maybe a file ID (simple int for order loaded and perhaps
-                // GUID for unique ID) to allow files to matched against an input collection such as here? Another option may be
-                // to add a simple search option for single file - Search and AdvancedSearch overloads that take a file and the
-                // search string (this could be useful to add anyway actually!)
+                // Make sure searcher is initialised (break out if takes too long to prevent continuous
+                // loop - 10 seconds should be more than enough time for this).
+                var maxDelay = 10000;
+                var delayCount = 0;
 
                 while (!searcher.IsInitialised)
-                    await Task.Delay(5);
+                {
+                    if (delayCount > maxDelay)
+                        break;
 
-                // ToDo: Populate results
+                    await Task.Delay(5);
+                    delayCount += 5;
+                }
+
+                // Assuming searcher has been initialised, perform the search and structure results into
+                // a dictionary of file names and collective results to be returned.
+                if (searcher.IsInitialised)
+                {
+                    var searchResults = await searcher.Search(searchString);
+
+                    foreach (var searchResult in searchResults)
+                    {
+                        if (!results.ContainsKey(searchResult.Document))
+                            results.Add(searchResult.Document, new List<ISearchResult>());
+
+                        results[searchString].Add(searchResult);
+                    }
+                }
             }
             finally
             {
-                streams.ForEach(s => s.Dispose());
+                // Dispose all internal file streams.
+                fileStreams?.Select(f => f.FileStream).ToList().ForEach(f => f.Dispose());
             }
 
             return Ok(results);
+        }
+
+        [HttpPost("advsearchdocs")]
+        public async Task<IActionResult> AdvSearchDocs([FromForm] List<IFormFile> files, IEnumerable<string> searchString)
+        {
+            // ToDo: Similar to the above (maybe share some common methods such as loading), but performing
+            // and advanced search ...
+
+            await Task.CompletedTask;
+            return Ok();
         }
 
         private string GetUniqueFileName(string filename, IEnumerable<string> existingFileNames)
