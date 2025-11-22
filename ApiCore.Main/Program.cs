@@ -1,5 +1,6 @@
 
 using ApiCore.Common.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace ApiCore.Main
 {
@@ -19,7 +20,12 @@ namespace ApiCore.Main
                 typeof(IApiModule).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)).ToArray();
 
             foreach (var assembly in assemblies)
-                mvcBuilder.AddApplicationPart(assembly);
+            {
+                mvcBuilder.AddApplicationPart(assembly).AddJsonOptions(o =>
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+            }
 
             builder.Services.AddEndpointsApiExplorer(); 
             builder.Services.AddSwaggerGen();
