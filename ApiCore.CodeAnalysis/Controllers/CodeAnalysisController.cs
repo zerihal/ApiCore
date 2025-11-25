@@ -1,11 +1,8 @@
 ﻿using ApiCore.Common.Interfaces;
+using AssemblyDependencyAnalyser.CommonInterfaces;
+using AssemblyDependencyAnalyser.Implementation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiCore.CodeAnalysis.Controllers
 {
@@ -24,16 +21,19 @@ namespace ApiCore.CodeAnalysis.Controllers
             });
         }
 
-        // Sample endpoint - to be replaced
         [HttpPost("analyze")]
-        public IActionResult Analyze([FromBody] string code)
+        public async Task<IActionResult> AnalyzeSingleAssemblies([FromForm] List<IFormFile> files)
         {
-            // Placeholder for your future logic
-            return Ok(new
+            var results = new List<IAnalysedFile>();
+            var analyser = new DependencyAnalyser();
+
+            foreach (var file in files)
             {
-                InputLength = code?.Length ?? 0,
-                Result = "Analysis functionality coming soon..."
-            });
+                results.Add(analyser.AnalyseAssembly(file.OpenReadStream()));
+            }
+
+            await Task.CompletedTask;
+            return Ok(results);
         }
     }
 }
