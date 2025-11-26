@@ -1,5 +1,7 @@
 ﻿using ApiCore.Common.Interfaces;
+using ApiCore.Common;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace ApiCore.Main.Controllers
 {
@@ -9,11 +11,19 @@ namespace ApiCore.Main.Controllers
     {
         private readonly IEnumerable<IApiModule> _modules;
 
+        /// <summary>
+        /// Default constructor that loads <see cref="IApiModule"/> implementations from service DI.
+        /// </summary>
+        /// <param name="modules">Sub APIs implementations of <see cref="IApiModule"/>.</param>
         public MainController(IEnumerable<IApiModule> modules)
         {
             _modules = modules;
         }
 
+        /// <summary>
+        /// Gets the status of the main API and loaded modules.
+        /// </summary>
+        /// <returns>API status information.</returns>
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
@@ -26,6 +36,10 @@ namespace ApiCore.Main.Controllers
             });
         }
 
+        /// <summary>
+        /// Gets all available endpoints from sub APIs.
+        /// </summary>
+        /// <returns>Details of all endpoints available to the core service (<see cref="EndpointInfo"/>).</returns>
         [HttpGet("endpoints")]
         public IActionResult GetEndpoints()
         {

@@ -9,8 +9,6 @@ namespace ApiCore.Main
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             // Add local controllers (if any) first.
             var mvcBuilder = builder.Services.AddControllers();
 
@@ -30,6 +28,7 @@ namespace ApiCore.Main
                 var moduleType = assembly.GetTypes().FirstOrDefault(t => typeof(IApiModule).IsAssignableFrom(t) && 
                     !t.IsInterface && !t.IsAbstract);
 
+                // Add services to the container.
                 if (moduleType != null)
                     builder.Services.AddTransient(typeof(IApiModule), moduleType);
             }
