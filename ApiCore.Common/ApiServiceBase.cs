@@ -9,8 +9,7 @@ namespace ApiCore.Common
         /// <summary>
         /// Gets API module assembly.
         /// </summary>
-        /// <returns>API module assembly.</returns>
-        public Assembly GetModuleAssembly() => GetType().Assembly;
+        public Assembly GetModuleAssembly => GetType().Assembly;
 
         /// <summary>
         /// Gets all controllers within this API module.

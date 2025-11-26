@@ -49,6 +49,10 @@ namespace ApiCore.CodeAnalysis.Controllers
         /// </summary>
         /// <param name="file">Archive to analyse.</param>
         /// <returns>Analysed project assemblies as JSON object.</returns>
+        /// <remarks>
+        /// Note: Endpoint currently takes a list of <see cref="IFormFile"/>, however this is only due to a bug with AspNetCore
+        /// and Swagger. Only the first file (project archive) will be analysed.
+        /// </remarks>
         [HttpPost("analyseproject")]
         public async Task<IActionResult> AnalyseProjectArchive([FromForm] List<IFormFile> file)
         {

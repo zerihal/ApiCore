@@ -10,7 +10,7 @@ namespace ApiCore.CodeAnalysis.Services
         /// <inheritdoc/>
         public EndpointInfo[] GetApiEndpoints()
         {
-            var controllers = GetControllers(GetModuleAssembly());
+            var controllers = GetControllers(GetModuleAssembly);
 
             if (_apiCalls == null)
                 _apiCalls = controllers.SelectMany(GetEndpoints).ToArray();
