@@ -10,7 +10,7 @@ namespace ApiCore.DocAnalysis.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DocAnalysisController : ControllerBase, IApiModule
+    public class DocAnalysisController : ControllerBase
     {
         private IList<IDocParser> DocParsers = new List<IDocParser>();
 
@@ -25,7 +25,7 @@ namespace ApiCore.DocAnalysis.Controllers
             {
                 Api = "DocAnalysis",
                 Status = "Active",
-                Message = "Placeholder endpoint for document analysis API."
+                Message = "Endpoint for document analysis API."
             });
         }
 

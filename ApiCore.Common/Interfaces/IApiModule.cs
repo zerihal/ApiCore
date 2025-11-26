@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ApiCore.Common.Interfaces
+﻿namespace ApiCore.Common.Interfaces
 {
     public interface IApiModule
     {
+        /// <summary>
+        /// Gets all endpoint info for this API module.
+        /// </summary>
+        /// <returns>Array of <see cref="EndpointInfo"/>.</returns>
+        public EndpointInfo[] GetApiEndpoints();
     }
 }

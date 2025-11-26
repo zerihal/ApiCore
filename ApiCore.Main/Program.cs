@@ -24,6 +24,14 @@ namespace ApiCore.Main
                 {
                     o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+
+                // There should only be one IApiModule implementation per assembly. Load this so that
+                // the service can be used within the main controller.
+                var moduleType = assembly.GetTypes().FirstOrDefault(t => typeof(IApiModule).IsAssignableFrom(t) && 
+                    !t.IsInterface && !t.IsAbstract);
+
+                if (moduleType != null)
+                    builder.Services.AddTransient(typeof(IApiModule), moduleType);
             }
 
             builder.Services.AddEndpointsApiExplorer(); 
