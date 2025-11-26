@@ -1,7 +1,6 @@
-﻿using ApiCore.Common.Interfaces;
-using ApiCore.Common;
+﻿using ApiCore.Common;
+using ApiCore.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace ApiCore.Main.Controllers
 {

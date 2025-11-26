@@ -1,5 +1,4 @@
-﻿using ApiCore.Common.Interfaces;
-using DocParser.DocSearch;
+﻿using DocParser.DocSearch;
 using DocParser.ExtensionMethods;
 using DocParser.Factories;
 using DocParser.Interfaces;
