@@ -1,0 +1,53 @@
+name: Azure Deploy Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      WEBAPP_NAME: apicore-tempapp-${{ github.run_id }}
+      RESOURCE_GROUP: apicore-temp-rg-${{ github.run_id }}
+      LOCATION: westeurope
+      DOTNET_VERSION: '9.0'
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create resource group
+      run: |
+        az group create \
+          --name $RESOURCE_GROUP \
+          --location $LOCATION
+
+    - name: Deploy to Azure App Service
+      run: |
+        az webapp up \
+          --name $WEBAPP_NAME \
+          --resource-group $RESOURCE_GROUP \
+          --runtime "DOTNET:${DOTNET_VERSION}" \
+          --src-path . \
+          --sku F1 \
+          --os-type linux
+
+    - name: Show App URL
+      run: |
+        URL=$(az webapp show \
+          --name $WEBAPP_NAME \
+          --resource-group $RESOURCE_GROUP \
+          --query defaultHostName -o tsv)
+        echo "🔥 Deployment complete:"
+        echo "    https://$URL"
