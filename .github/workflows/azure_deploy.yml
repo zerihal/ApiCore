@@ -25,10 +25,10 @@ jobs:
     - name: Ensure Web App exists
       run: |
         az webapp show \
-          --name apicoreapi \
+          --name apicore \
           --resource-group Test-RG \
         || az webapp create \
-             --name apicoreapi \
+             --name apicore \
              --resource-group Test-RG \
              --plan Test-Service-Plan \
              --runtime "DOTNETCORE:9.0"
@@ -41,11 +41,11 @@ jobs:
     - name: Deploy API to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: apicoreapi
+        app-name: apicore
         package: publish
 
     # --- Optional: Smoke test endpoints ---
     - name: Test API endpoint
       run: |
         sleep 20 # wait for deployment to stabilize (20s)
-        curl -f https://apicoreapi.azurewebsites.net/api/main/status
+        curl -f https://apicore.azurewebsites.net/main/status
