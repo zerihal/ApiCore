@@ -83,7 +83,8 @@ jobs:
       run: |
         APP_NAME="${{ needs.build-and-deploy.outputs.app_name }}"
         echo "Deleting app: $APP_NAME"
-        echo "Note: App Service Plan will NOT be deleted"
+        echo "Note: App Service Plan will NOT be deleted (this will only delete the app)"
         az webapp delete \
-          --name "$APP_NAME" \
-          --resource-group Test-RG
+          --name $APP_NAME \
+          --resource-group Test-RG \
+          --keep-empty-plan true
