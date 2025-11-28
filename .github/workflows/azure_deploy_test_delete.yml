@@ -86,6 +86,10 @@ jobs:
           az webapp delete \
             --name "$APP_NAME" \
             --resource-group Test-RG || echo "App already deleted or plan is empty"
+
+      # --- Small propagation delay to avoid possible race condition ---
+      - name: Wait for Azure to update
+        run: sleep 10
   
       - name: Ensure App Service Plan exists
         run: |
