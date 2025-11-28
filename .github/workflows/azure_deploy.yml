@@ -1,4 +1,4 @@
-name: Deploy .NET 9 API to Azure (Free Tier)
+name: Deploy Web App / API to Azure
 
 on:
   workflow_dispatch:
@@ -21,34 +21,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # --- Create Resource Group if missing ---
-    - name: Create Resource Group
+    # --- Optional: Create Web App if missing ---
+    - name: Ensure Web App exists
       run: |
-        az group create \
-          --name ApiCoreRG \
-          --location westeurope
-
-    # --- Create Free App Service Plan if missing ---
-    - name: Create App Service Plan
-      run: |
-        az appservice plan create \
-          --name ApiCorePlan \
-          --resource-group ApiCoreRG \
-          --sku F1 \
-          --is-linux \
-          --only-show-errors \
-          || echo "Plan already exists"
-
-    # --- Create Web App if missing ---
-    - name: Create Web App
-      run: |
-        az webapp create \
+        az webapp show \
           --name apicoreapi \
-          --resource-group ApiCoreRG \
-          --plan ApiCorePlan \
-          --runtime "DOTNETCORE:9.0" \
-          --only-show-errors \
-          || echo "Web App already exists"
+          --resource-group Test-RG \
+        || az webapp create \
+             --name apicoreapi \
+             --resource-group Test-RG \
+             --plan Test-Service-Plan \
+             --runtime "DOTNETCORE:9.0"
 
     # --- Build and publish the API ---
     - name: Publish .NET API
@@ -61,8 +44,8 @@ jobs:
         app-name: apicoreapi
         package: publish
 
-    # --- Optional: Smoke test endpoints (example) ---
+    # --- Optional: Smoke test endpoints ---
     - name: Test API endpoint
       run: |
-        sleep 10 # wait for deployment to stabilize
+        sleep 20 # wait for deployment to stabilize (20s)
         curl -f https://apicoreapi.azurewebsites.net/api/main/status
