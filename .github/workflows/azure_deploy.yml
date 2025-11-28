@@ -21,31 +21,33 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # --- Optional: Create Web App if missing ---
+    # --- Check if web app exists and create if missing ---
     - name: Ensure Web App exists
       run: |
+        APP_NAME=apicore-${GITHUB_RUN_ID}
+        echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
         az webapp show \
-          --name apicore \
+          --name $APP_NAME \
           --resource-group Test-RG \
         || az webapp create \
-             --name apicore \
+             --name $APP_NAME \
              --resource-group Test-RG \
              --plan Test-Service-Plan \
              --runtime "DOTNETCORE:9.0"
-
+    
     # --- Build and publish the API ---
     - name: Publish .NET API
       run: dotnet publish ApiCore.Main/ApiCore.Main.csproj -c Release -o publish
-
+    
     # --- Deploy to Azure ---
     - name: Deploy API to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: apicore
+        app-name: ${{ env.APP_NAME }}
         package: publish
-
+    
     # --- Optional: Smoke test endpoints ---
     - name: Test API endpoint
       run: |
-        sleep 20 # wait for deployment to stabilize (20s)
-        curl -f https://apicore.azurewebsites.net/main/status
+        sleep 20 # wait for deployment to stabilize
+        curl -f https://${{ env.APP_NAME }}.azurewebsites.net/main/status
