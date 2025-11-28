@@ -96,7 +96,7 @@ jobs:
               --name Test-Service-Plan \
               --resource-group Test-RG \
               --sku F1 \
-              --is-linux
+              --is-linux \
               --location "UK West"
           else
             echo "Service plan exists, no action needed."
