@@ -37,7 +37,7 @@ jobs:
     # --- Check if web app exists and create if missing ---
     - name: Ensure Web App exists
       run: |
-        echo "Note: Ignore any error shown for app not found — it will be created if missing"
+        echo "Note: Ignore any error shown for app not found (expected if not already present) — it will be created if missing"
         az webapp show \
           --name "${APP_NAME}" \
           --resource-group Test-RG \
@@ -64,7 +64,7 @@ jobs:
         echo "Waiting for app to warm up..."
         sleep 20
         echo "Testing endpoint..."
-        curl -f "https://${APP_NAME}.azurewebsites.net/main/status"
+        curl -f "https://${APP_NAME}.azurewebsites.net/main/status" -w "\n"
         echo "Endpoint tests finished (passed)"
 
   # --- Cleanup block: delete temporary app regardless of success/failure ---
@@ -72,19 +72,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-deploy
     if: always()
-
     steps:
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+      - name: Delete Test App
+        run: |
+          APP_NAME="${{ needs.build-and-deploy.outputs.app_name }}"
+          echo "Deleting app: $APP_NAME"
+          echo "Note: App Service Plan will NOT be deleted unless empty (in which case recreated)"
+          az webapp delete \
+            --name "$APP_NAME" \
+            --resource-group Test-RG || echo "App already deleted or plan is empty"
+  
+      - name: Ensure App Service Plan exists
+        run: |
+          PLAN_EXISTS=$(az appservice plan show --name Test-Service-Plan --resource-group Test-RG --query "name" -o tsv || echo "")
+          if [ -z "$PLAN_EXISTS" ]; then
+            echo "Service plan was empty and auto-deleted. Recreating Test-Service-Plan..."
+            az appservice plan create \
+              --name Test-Service-Plan \
+              --resource-group Test-RG \
+              --sku F1 \
+              --is-linux
+              --location "UK West"
+          else
+            echo "Service plan exists, no action needed."
+          fi
 
-    - name: Delete App Service
-      run: |
-        APP_NAME="${{ needs.build-and-deploy.outputs.app_name }}"
-        echo "Deleting app: $APP_NAME"
-        echo "Note: App Service Plan will NOT be deleted (this will only delete the app)"
-        az webapp delete \
-          --name $APP_NAME \
-          --resource-group Test-RG \
-          --keep-empty-plan true
