@@ -1,0 +1,108 @@
+name: Deploy Web API to Azure Test RG (Not Retained)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # --- Define an output for app name (set in the setname step) to pass to cleanup job ---
+    outputs:
+      app_name: ${{ steps.setname.outputs.APP_NAME }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # --- Generate dynamic app name and expose it to rest of workflow ---
+    - name: Set APP_NAME
+      id: setname
+      run: |
+        APP_NAME="apicore-${GITHUB_RUN_ID}"
+        echo "Generated APP_NAME=$APP_NAME"
+        echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+        echo "APP_NAME=$APP_NAME" >> $GITHUB_OUTPUT
+
+    # --- Check if web app exists and create if missing ---
+    - name: Ensure Web App exists
+      run: |
+        echo "Note: Ignore any error shown for app not found (expected if not already present) — it will be created if missing"
+        az webapp show \
+          --name "${APP_NAME}" \
+          --resource-group Test-RG \
+        || az webapp create \
+             --name "${APP_NAME}" \
+             --resource-group Test-RG \
+             --plan Test-Service-Plan \
+             --runtime "DOTNETCORE:9.0"
+
+    # --- Build and publish the API ---
+    - name: Publish .NET API
+      run: dotnet publish ApiCore.Main/ApiCore.Main.csproj -c Release -o publish
+
+    # --- Deploy to Azure ---
+    - name: Deploy API to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.APP_NAME }}
+        package: publish
+
+    # --- Test main endpoint ---
+    - name: Test API endpoint
+      run: |
+        echo "Waiting for app to warm up..."
+        sleep 20
+        echo "Testing endpoint..."
+        curl -f "https://${APP_NAME}.azurewebsites.net/main/status" -w "\n"
+        echo "Endpoint tests finished (passed)"
+
+  # --- Cleanup block: delete temporary app regardless of success/failure ---
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: always()
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+      - name: Delete Test App
+        run: |
+          APP_NAME="${{ needs.build-and-deploy.outputs.app_name }}"
+          echo "Deleting app: $APP_NAME"
+          echo "Note: App Service Plan will NOT be deleted unless empty (in which case recreated)"
+          az webapp delete \
+            --name "$APP_NAME" \
+            --resource-group Test-RG || echo "App already deleted or plan is empty"
+
+      # --- Small propagation delay to avoid possible race condition ---
+      - name: Wait for Azure to update
+        run: sleep 10
+  
+      - name: Ensure App Service Plan exists
+        run: |
+          PLAN_EXISTS=$(az appservice plan show --name Test-Service-Plan --resource-group Test-RG --query "name" -o tsv || echo "")
+          if [ -z "$PLAN_EXISTS" ]; then
+            echo "Service plan was empty and auto-deleted. Recreating Test-Service-Plan..."
+            az appservice plan create \
+              --name Test-Service-Plan \
+              --resource-group Test-RG \
+              --sku F1 \
+              --is-linux \
+              --location "UK West"
+          else
+            echo "Service plan exists, no action needed."
+          fi
+
