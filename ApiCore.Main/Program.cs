@@ -1,4 +1,6 @@
 using ApiCore.Common.Interfaces;
+using ApiCore.Main.ApiKey;
+using ApiCore.Main.Interfaces;
 using System.Text.Json.Serialization;
 
 namespace ApiCore.Main
@@ -33,6 +35,9 @@ namespace ApiCore.Main
                     builder.Services.AddTransient(typeof(IApiModule), moduleType);
             }
 
+            // Register API key store.
+            builder.Services.AddTransient<IApiKeyStore, SqliteApiKeyStore>();
+
             builder.Services.AddEndpointsApiExplorer(); 
             builder.Services.AddSwaggerGen();
 
@@ -47,6 +52,9 @@ namespace ApiCore.Main
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
+            // Uncomment the below to enable API key checking middleware. Note that this requires a database to be setup
+            // with at least one valid API key (see ApiKeyGenerator project - to be packaged or integrated in future).
+            //app.UseMiddleware<ApiKeyMiddleware>();
             app.MapControllers();
             app.Run();
         }
