@@ -52,9 +52,12 @@ namespace ApiCore.Main
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
-            // Uncomment the below to enable API key checking middleware. Note that this requires a database to be setup
-            // with at least one valid API key (see ApiKeyGenerator project - to be packaged or integrated in future).
-            //app.UseMiddleware<ApiKeyMiddleware>();
+
+            // Note: API key checking middleware requires a database to be setup with at least one valid
+            // API key (see ApiKeyGenerator project - to be packaged or integrated in future). This is 
+            // skipped in development mode to allow easier testing.
+            app.UseMiddleware<ApiKeyMiddleware>();
+
             app.MapControllers();
             app.Run();
         }

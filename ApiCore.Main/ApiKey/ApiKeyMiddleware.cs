@@ -2,13 +2,32 @@
 
 namespace ApiCore.Main.ApiKey
 {
+    /// <summary>
+    /// API key validation middleware.
+    /// ------------------------------
+    /// This validates the API key provided in the X-API-KEY header against the keys stored
+    /// in the IApiKeyStore instance (database). The expected schema for the API table is:
+    /// 
+    /// SQLite Table: ApiKeys
+    /// ----------------------
+    /// | Id (integer, PK)   |
+    /// | HashedKey (text)   |
+    /// | Owner (text)       |
+    /// | KeyType (iteger)   |
+    /// | IsActive (integer) |
+    /// | CreatedUtc (text)  |
+    /// | LastUsedUtc (text) |
+    /// ----------------------
+    /// </summary>
     public sealed class ApiKeyMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IWebHostEnvironment _env;
 
-        public ApiKeyMiddleware(RequestDelegate next)
+        public ApiKeyMiddleware(RequestDelegate next, IWebHostEnvironment env)
         {
             _next = next;
+            _env = env;
         }
 
         /// <summary>
@@ -19,6 +38,13 @@ namespace ApiCore.Main.ApiKey
         /// <returns><see cref="Task"/>.</returns>
         public async Task InvokeAsync(HttpContext context, IApiKeyStore apiKeyStore)
         {
+            if (_env.IsDevelopment())
+            {
+                // In development mode, skip API key validation
+                await _next(context);
+                return;
+            }
+
             // Check for the presence of the X-API-KEY header
             if (!context.Request.Headers.TryGetValue("X-API-KEY", out var auth))
             {
