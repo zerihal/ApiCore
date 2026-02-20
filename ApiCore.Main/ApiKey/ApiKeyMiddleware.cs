@@ -1,4 +1,5 @@
 ﻿using ApiCore.Main.Interfaces;
+using ApiKeyUtils.ApiKeyDb;
 
 namespace ApiCore.Main.ApiKey
 {
@@ -55,7 +56,8 @@ namespace ApiCore.Main.ApiKey
 
             // Hash the provided API key
             var rawKey = auth.ToString();
-            var hashedKey = ApiKeyHasher.HashApiKey(rawKey);
+            //var hashedKey = ApiKeyHasher.HashApiKey(rawKey);
+            var hashedKey = ApiDbHelper.GetKeyHash(rawKey);
 
             // Validate the hashed API key
             var validationResult = await apiKeyStore.ValidateAsync(hashedKey);

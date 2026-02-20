@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ApiCore.CodeAnalysis\ApiCore.CodeAnalysis.csproj" />
     <ProjectReference Include="..\ApiCore.DocAnalysis\ApiCore.DocAnalysis.csproj" />
+    <ProjectReference Include="..\ApiKeyUtils\ApiKeyUtils.csproj" />
   </ItemGroup>
 
 </Project>

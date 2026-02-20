@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11408.102 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCore.Main", "ApiCore.Main\ApiCore.Main.csproj", "{F67B45A2-59A9-441A-95CE-CE2C0F389255}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCore.CodeAnalysis", "ApiCore.CodeAnalysis\ApiCore.CodeAnalysis.csproj", "{730FDA3B-E50F-47CB-A392-AF8007A0A160}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCore.Common", "ApiCore.Common\ApiCore.Common.csproj", "{55AC3F44-09FC-401B-83FD-6E7602BA1AC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiKeyUtils", "ApiKeyUtils\ApiKeyUtils.csproj", "{89FF4A76-0788-FA7D-9B3A-84216CAFC82E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{55AC3F44-09FC-401B-83FD-6E7602BA1AC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55AC3F44-09FC-401B-83FD-6E7602BA1AC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55AC3F44-09FC-401B-83FD-6E7602BA1AC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89FF4A76-0788-FA7D-9B3A-84216CAFC82E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89FF4A76-0788-FA7D-9B3A-84216CAFC82E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89FF4A76-0788-FA7D-9B3A-84216CAFC82E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89FF4A76-0788-FA7D-9B3A-84216CAFC82E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
