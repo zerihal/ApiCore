@@ -5,6 +5,30 @@
     "version": "1.0"
   },
   "paths": {
+    "/Main/status": {
+      "get": {
+        "tags": [
+          "Main"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Main/endpoints": {
+      "get": {
+        "tags": [
+          "Main"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/CodeAnalysis/status": {
       "get": {
         "tags": [
@@ -212,30 +236,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/Main/status": {
-      "get": {
-        "tags": [
-          "Main"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/Main/endpoints": {
-      "get": {
-        "tags": [
-          "Main"
-        ],
         "responses": {
           "200": {
             "description": "OK"
